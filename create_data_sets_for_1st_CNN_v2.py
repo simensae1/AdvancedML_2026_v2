@@ -140,10 +140,11 @@ def load_and_preprocess_dataset(df, type_sets, target_size=(640, 640)):
     X = []
     y = []
     model_yolo = YOLO("yolo11x.pt")
+    model_specialized = YOLO("models/best.pt")
     for index, row in df.iterrows():
         img_name = row['filename'].strip()
         if row['label'] == 0:
-            bout_de_chemin = "kaggle_traffic_light_data_set/" + "train" + "_dataset/"
+            bout_de_chemin = "data/kaggle_traffic_light_data_set/" + "train" + "_dataset/"
             img_path = os.path.join(bout_de_chemin, img_name)
             results = model_yolo(img_path)
             first_result = results[0]
@@ -152,9 +153,13 @@ def load_and_preprocess_dataset(df, type_sets, target_size=(640, 640)):
             img = cv2.imread(path_after_extraction)
 
         if row['label'] == 1:
-            bout_de_chemin = "pedestrian_Traffic_Light_v1i_yolov11/"+ type_sets+ "/images"
+            bout_de_chemin = "data/pedestrian_Traffic_Light_v1i_yolov11/" + type_sets + "/images"
             img_path = os.path.join(bout_de_chemin, img_name)
-            img = cv2.imread(img_path)
+            results = model_specialized(img_path)
+            first_result = results[0]
+            extract_traffic_lights(first_result)
+            path_after_extraction = "extracted_lights/light_0.jpg"
+            img = cv2.imread(path_after_extraction)
 
         if img is not None:
             # 1. Padding et Resize
@@ -175,10 +180,10 @@ if __name__ == "__main__":
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    folder_path_pedestrian = 'pedestrian_Traffic_Light_v1i_yolov11/train/images'
+    folder_path_pedestrian = 'data/pedestrian_Traffic_Light_v1i_yolov11/train/images'
     output_file_pedestrian = 'data_set_for_1st_CNN/pedestrian_traffic_light.txt'
 
-    input_json_motor_traffic_light = 'kaggle_traffic_light_data_set/train_dataset/train.json'
+    input_json_motor_traffic_light = 'data/kaggle_traffic_light_data_set/train_dataset/train.json'
     output_file_motor_traffic_light = 'data_set_for_1st_CNN/motor_vehicle_images.txt'
 
     fichiers = ['data_set_for_1st_CNN/motor_vehicle_images_subset.txt', 'data_set_for_1st_CNN/pedestrian_traffic_light.txt']

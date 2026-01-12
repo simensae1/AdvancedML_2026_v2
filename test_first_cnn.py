@@ -29,7 +29,7 @@ with open('test_set_for_1st_CNN/motor_vehicul_test_set.txt', 'w', encoding='utf-
 
 
 
-folder_path_pedestrian = 'pedestrian_Traffic_Light_v1i_yolov11/test/images/'
+folder_path_pedestrian = 'data/pedestrian_Traffic_Light_v1i_yolov11/test/images/'
 output_file_pedestrian = 'test_set_for_1st_CNN/pedestrian_traffic_light.txt'
 
 

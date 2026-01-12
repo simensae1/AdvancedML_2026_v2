@@ -92,7 +92,7 @@ def classify_traffic_light(path_image):
 
 
 #classify_traffic_light("PTL_Dataset_768x576/23_jpg.rf.85ea24e72f8d75fd606a7efded7bcdf8.JPG")
-classify_traffic_light("heon_IMG_0816.JPG")
+classify_traffic_light("heon_IMG_0766.JPG")
 
 # heon_IMG_0602 one pedestrian traffic light no vehicule traffic light
 # heon_IMG_0552 no pedestrian traffic light two vehicule traffic light
