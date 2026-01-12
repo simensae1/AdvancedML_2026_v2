@@ -2,7 +2,6 @@ import s3fs
 import os
 import boto3
 import zipfile
-from ultralytics import YOLO
 
 
 print(os.environ.get('AWS_S3_BUCKET'))
@@ -77,7 +76,3 @@ if not os.path.exists(local_model_path):
     print("Download complete.")
 else:
     print("Model already exists locally.")
-
-# 4. Load the model into YOLO
-model = YOLO(local_model_path)
-print("Model loaded successfully!")
