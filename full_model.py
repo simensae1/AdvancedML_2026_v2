@@ -6,7 +6,9 @@ import create_data_sets_for_1st_CNN_v2
 import numpy as np
 from pathlib import Path
 import glob
-
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import math
 
 def extract_traffic_lights(results, output_folder="extracted_lights"):
     """
@@ -44,9 +46,84 @@ def extract_traffic_lights(results, output_folder="extracted_lights"):
     return counter
 
 
+def compare_red_and_green(list_image_path):
+    result = []
+    for image_path in list_image_path:
+        # 1. Load the image
+        img = cv2.imread(image_path)
+        if img is None:
+            return "Error: Image not found"
+
+        # 2. Convert to HSV
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        # 3. Define Red Range (Red wraps around the 0/180 hue limit)
+        lower_red1 = np.array([0, 100, 100])
+        upper_red1 = np.array([10, 255, 255])
+        lower_red2 = np.array([160, 100, 100])
+        upper_red2 = np.array([180, 255, 255])
+        
+        mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        mask_red = cv2.add(mask_red1, mask_red2)
+
+        # 4. Define Green Range
+        lower_green = np.array([35, 100, 100])
+        upper_green = np.array([85, 255, 255])
+        mask_green = cv2.inRange(hsv, lower_green, upper_green)
+
+        # 5. Count pixels
+        red_count = cv2.countNonZero(mask_red)
+        green_count = cv2.countNonZero(mask_green)
+
+        # 6. Logic
+        if red_count == 0 and green_count == 0:
+            result.append("No color")
+        elif red_count > green_count:
+            result.append("RED")
+        elif green_count > red_count:
+            result.append("GREEN")
+        else:
+            result.append("CONFUSE")
+    return result
+
+def display_image_grid(image_list, value_list, cols=3):
+    """
+    Displays a grid of images with their associated values as titles.
+    
+    image_list: List of image paths or numpy arrays
+    value_list: List of values (labels, scores, etc.)
+    cols: Number of columns in the grid
+    """
+    num_images = len(image_list)
+    rows = math.ceil(num_images / cols)
+    
+    # Create the figure
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 4, rows * 4))
+    axes = axes.flatten() # Flatten in case of multiple rows
+    
+    for i in range(num_images):
+        img = image_list[i]
+        val = value_list[i]
+        
+        # Load image if it's a path string
+        if isinstance(img, str):
+            img = mpimg.imread(img)
+            
+        axes[i].imshow(img)
+        axes[i].set_title(f"Value: {val}", fontsize=12, pad=10)
+        axes[i].axis('off') # Hide the x/y axis pixels
+        
+    # Hide any unused subplots
+    for j in range(i + 1, len(axes)):
+        axes[j].axis('off')
+        
+    plt.tight_layout()
+    plt.savefig("result_full_model", bbox_inches='tight', dpi=300)
+    plt.show()
+
 
 def classify_traffic_light(path_image):
-    #model_yolo = YOLO("runs/detect/train/weights/best.pt")
     model_yolo = YOLO("yolo11x.pt")
     model_first_cnn = first_CNN.create_model()
     model_first_cnn.load_weights('first_CNN_weights.weights.h5')
@@ -70,8 +147,9 @@ def classify_traffic_light(path_image):
         return "no traffic light detected"
 
     else:
-        repertoire = Path("extracted_lights")
         liste_image = []
+        repertoire = Path("extracted_lights")
+        liste_image_path = []
         for fichier in os.listdir(repertoire):
             image_path = os.path.join(repertoire, fichier)
             img = cv2.imread(image_path)
@@ -80,6 +158,7 @@ def classify_traffic_light(path_image):
             image = create_data_sets_for_1st_CNN_v2.resize_with_padding(img)
             cv2.imwrite('my_saved_image0.jpg', image)
             print(image.shape)
+            liste_image_path.append(image_path)
 
             image_norm = image.astype('float32') / 255.0
             liste_image.append(image_norm)
@@ -89,9 +168,18 @@ def classify_traffic_light(path_image):
 
         prediction = model_first_cnn.predict(batch)
         print(prediction)
+        binary_prediction = (prediction > 0.5).astype("int32")
+        print(binary_prediction)
+        labels_list = ["vehiculte traffic light" if x == 0 else "pedestrian traffic light" for x in binary_prediction]
+        print(labels_list)
+        liste_couleur = compare_red_and_green(liste_image_path)
+        for i in range(len(liste_image_path)):
+            labels_list[i] = (labels_list[i], liste_couleur[i])
+        display_image_grid(liste_image_path, labels_list)
 
 
-#classify_traffic_light("PTL_Dataset_768x576/23_jpg.rf.85ea24e72f8d75fd606a7efded7bcdf8.JPG")
+# 1 = pedestrian traffic light
+# 0 = vehiculte traffic light
 classify_traffic_light("heon_IMG_0766.JPG")
 
 # heon_IMG_0602 one pedestrian traffic light no vehicule traffic light

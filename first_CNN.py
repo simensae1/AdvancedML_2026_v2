@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models
+from tensorflow.keras import layers, models, optimizers
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -7,25 +7,41 @@ import os
 
 def create_model(input_shape=(640, 640, 3)):
     model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        # Layer 1
+        layers.Conv2D(32, (3, 3), padding='same', input_shape=input_shape),
         layers.BatchNormalization(),
+        layers.LeakyReLU(alpha=0.1),
         layers.MaxPooling2D((2, 2)),
         
-        layers.Conv2D(64, (3, 3), activation='relu'),
+        # Layer 2
+        layers.Conv2D(64, (3, 3), padding='same'),
         layers.BatchNormalization(),
+        layers.LeakyReLU(alpha=0.1),
         layers.MaxPooling2D((2, 2)),
         
-        layers.Conv2D(64, (3, 3), activation='relu'),
+        # Layer 3
+        layers.Conv2D(64, (3, 3), padding='same'),
         layers.BatchNormalization(),
+        layers.LeakyReLU(alpha=0.1),
         layers.MaxPooling2D((2, 2)),
 
-        layers.Conv2D(128, (3, 3), activation='relu'),
+        # Layer 4
+        layers.Conv2D(128, (3, 3), padding='same'),
         layers.BatchNormalization(),
+        layers.LeakyReLU(alpha=0.1),
         layers.MaxPooling2D((2, 2)),
         
         layers.Flatten(), 
-        layers.Dense(64, activation='relu'),
+        
+        # Dense layers with Dropout to prevent overfitting
+        layers.Dense(128),
+        layers.LeakyReLU(alpha=0.1),
         layers.Dropout(0.5),
+        
+        layers.Dense(64),
+        layers.LeakyReLU(alpha=0.1),
+        
+        # Output layer for Binary Classification
         layers.Dense(1, activation='sigmoid')
     ])
     return model
@@ -40,11 +56,14 @@ if __name__ == "__main__":
     
     # Initialisation du modèle
     model = create_model()
-
-    # Compilation
-    model.compile(optimizer='adam',
-                loss='binary_crossentropy',
-                metrics=['accuracy'])
+    lr = 0.0001 # Start low to avoid skipping the minority class patterns
+    opt = optimizers.Adam(learning_rate=lr)
+    
+    model.compile(
+        optimizer=opt,
+        loss='binary_crossentropy',
+        metrics=['accuracy', tf.keras.metrics.Recall()]
+    )
 
     model.summary()
 
@@ -56,8 +75,8 @@ if __name__ == "__main__":
     model.summary()
     history = model.fit(
         X_train, y_train,
-        epochs=10,             # Nombre de passages complets sur le dataset
-        batch_size=8,         # Nombre d'images traitées avant de mettre à jour le modèle
+        epochs=15,             # Nombre de passages complets sur le dataset
+        batch_size=16,         # Nombre d'images traitées avant de mettre à jour le modèle
         validation_split=0.2   # Utilise 20% des données pour valider pendant l'entraînement
     )
     model.save('first_CNN.keras')
@@ -65,12 +84,3 @@ if __name__ == "__main__":
 
     # Save history to a CSV
     pd.DataFrame(history.history).to_csv("history.csv", index=False)
-
-
-    # Affichage de la précision (accuracy)
-    plt.plot(history.history['accuracy'], label='Précision Entraînement')
-    plt.plot(history.history['val_accuracy'], label='Précision Validation')
-    plt.xlabel('Époque')
-    plt.ylabel('Précision')
-    plt.legend()
-    plt.show()
