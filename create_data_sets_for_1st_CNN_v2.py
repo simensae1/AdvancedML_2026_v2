@@ -1,15 +1,10 @@
 import os
-import shutil
-from PIL import Image
 import pandas as pd
-from pathlib import Path
 from sklearn.model_selection import train_test_split
 import json
-import subprocess
-import sys
 import numpy as np
-import cv2
 from ultralytics import YOLO
+import cv2
 
 
 def extract_traffic_lights(results, output_folder="extracted_lights"):
