@@ -7,6 +7,9 @@ from ultralytics import YOLO
 import cv2
 
 
+os.system("pip uninstall -y opencv-python opencv-python-headless && pip install opencv-python-headless")
+
+
 def extract_traffic_lights(results, output_folder="extracted_lights"):
     """
     Extracts detected traffic lights from YOLO results and saves them as individual images.

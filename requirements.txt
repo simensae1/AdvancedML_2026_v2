@@ -2,3 +2,4 @@ tensorflow
 boto3
 opencv-python-headless
 ultralytics
+opencv-python
