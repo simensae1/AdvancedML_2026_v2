@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models, optimizer
+from tensorflow.keras import layers, models, optimizers
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -65,7 +65,6 @@ if __name__ == "__main__":
         metrics=['accuracy', tf.keras.metrics.Recall()]
     )
 
-
     model.summary()
 
     model = create_model()
@@ -85,12 +84,3 @@ if __name__ == "__main__":
 
     # Save history to a CSV
     pd.DataFrame(history.history).to_csv("history.csv", index=False)
-
-
-    # Affichage de la précision (accuracy)
-    plt.plot(history.history['accuracy'], label='Précision Entraînement')
-    plt.plot(history.history['val_accuracy'], label='Précision Validation')
-    plt.xlabel('Époque')
-    plt.ylabel('Précision')
-    plt.legend()
-    plt.show()
