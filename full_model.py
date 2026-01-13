@@ -46,6 +46,47 @@ def extract_traffic_lights(results, output_folder="extracted_lights"):
     return counter
 
 
+def compare_red_and_green(list_image_path):
+    result = []
+    for image_path in list_image_path:
+        # 1. Load the image
+        img = cv2.imread(image_path)
+        if img is None:
+            return "Error: Image not found"
+
+        # 2. Convert to HSV
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        # 3. Define Red Range (Red wraps around the 0/180 hue limit)
+        lower_red1 = np.array([0, 100, 100])
+        upper_red1 = np.array([10, 255, 255])
+        lower_red2 = np.array([160, 100, 100])
+        upper_red2 = np.array([180, 255, 255])
+        
+        mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        mask_red = cv2.add(mask_red1, mask_red2)
+
+        # 4. Define Green Range
+        lower_green = np.array([35, 100, 100])
+        upper_green = np.array([85, 255, 255])
+        mask_green = cv2.inRange(hsv, lower_green, upper_green)
+
+        # 5. Count pixels
+        red_count = cv2.countNonZero(mask_red)
+        green_count = cv2.countNonZero(mask_green)
+
+        # 6. Logic
+        if red_count == 0 and green_count == 0:
+            result.append("No color")
+        elif red_count > green_count:
+            result.append("RED")
+        elif green_count > red_count:
+            result.append("GREEN")
+        else:
+            result.append("CONFUSE")
+    return result
+
 def display_image_grid(image_list, value_list, cols=3):
     """
     Displays a grid of images with their associated values as titles.
@@ -83,7 +124,6 @@ def display_image_grid(image_list, value_list, cols=3):
 
 
 def classify_traffic_light(path_image):
-    #model_yolo = YOLO("runs/detect/train/weights/best.pt")
     model_yolo = YOLO("yolo11x.pt")
     model_first_cnn = first_CNN.create_model()
     model_first_cnn.load_weights('first_CNN_weights.weights.h5')
@@ -132,6 +172,9 @@ def classify_traffic_light(path_image):
         print(binary_prediction)
         labels_list = ["vehiculte traffic light" if x == 0 else "pedestrian traffic light" for x in binary_prediction]
         print(labels_list)
+        liste_couleur = compare_red_and_green(liste_image_path)
+        for i in range(len(liste_image_path)):
+            labels_list[i] = (labels_list[i], liste_couleur[i])
         display_image_grid(liste_image_path, labels_list)
 
 
