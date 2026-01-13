@@ -89,9 +89,15 @@ def classify_traffic_light(path_image):
 
         prediction = model_first_cnn.predict(batch)
         print(prediction)
+        binary_prediction = (prediction > 0.5).astype("int32")
+        print(binary_prediction)
 
 
 #classify_traffic_light("PTL_Dataset_768x576/23_jpg.rf.85ea24e72f8d75fd606a7efded7bcdf8.JPG")
+
+
+# 1 = pedestrian traffic light 
+# 0 = vehiculte traffic light 
 classify_traffic_light("heon_IMG_0766.JPG")
 
 # heon_IMG_0602 one pedestrian traffic light no vehicule traffic light
