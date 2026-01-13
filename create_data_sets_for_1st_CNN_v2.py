@@ -3,11 +3,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import json
 import numpy as np
-from ultralytics import YOLO
-import cv2
-
-
 os.system("pip uninstall -y opencv-python opencv-python-headless && pip install opencv-python-headless")
+import cv2
+from ultralytics import YOLO
+
+
+
+
 
 
 def extract_traffic_lights(results, output_folder="extracted_lights"):
