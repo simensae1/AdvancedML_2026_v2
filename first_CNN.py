@@ -76,8 +76,8 @@ if __name__ == "__main__":
     model.summary()
     history = model.fit(
         X_train, y_train,
-        epochs=10,             # Nombre de passages complets sur le dataset
-        batch_size=8,         # Nombre d'images traitées avant de mettre à jour le modèle
+        epochs=15,             # Nombre de passages complets sur le dataset
+        batch_size=16,         # Nombre d'images traitées avant de mettre à jour le modèle
         validation_split=0.2   # Utilise 20% des données pour valider pendant l'entraînement
     )
     model.save('first_CNN.keras')
