@@ -3,23 +3,27 @@ import os
 import boto3
 import zipfile
 
-
+"""
+AWS_S3_ENDPOINT = "minio.lab.sspcloud.fr"
 print(os.environ.get('AWS_S3_BUCKET'))
 
 # Onyxia automatically provides these environment variables
-endpoint = os.environ['AWS_S3_ENDPOINT']
+#endpoint = os.environ['AWS_S3_ENDPOINT']
 
 # Initialize the filesystem
-fs = s3fs.S3FileSystem()
+S3_ENDPOINT_URL = "https://" + os.environ["AWS_S3_ENDPOINT"]
+fs = s3fs.S3FileSystem(client_kwargs={'endpoint_url': S3_ENDPOINT_URL})
+#fs = s3fs.S3FileSystem()
 
 # List files in your bucket
 # Replace 'your-bucket-name' with yours (usually 'projet-yourname')
 my_bucket = "sim2023"
 
 print(fs.ls(my_bucket))
-
+"""
+fs = s3fs.S3FileSystem()
 # load data set
-s3_zip_path = "s3://sim2023/advancedeml/kaggle_traffic_light_data_set.zip"
+s3_zip_path = "https://minio.lab.sspcloud.fr/sim2023/advancedeml/kaggle_traffic_light_data_set.zip"
 local_zip_path = "temp_data.zip"
 extraction_dir = "data"
 
@@ -40,7 +44,7 @@ os.remove(local_zip_path)
 
 print("Extraction terminée et fichier zip supprimé.")
 
-s3_zip_path = "s3://sim2023/advancedeml/pedestrian_Traffic_Light_v1i_yolov11.zip"
+s3_zip_path = "https://minio.lab.sspcloud.fr/sim2023/advancedeml/pedestrian_Traffic_Light_v1i_yolov11.zip"
 local_zip_path = "temp_data.zip"
 extraction_dir = "data"
 

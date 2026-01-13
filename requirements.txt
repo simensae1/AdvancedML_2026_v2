@@ -1,3 +1,4 @@
+s3fs
 tensorflow
 boto3
 opencv-python-headless
