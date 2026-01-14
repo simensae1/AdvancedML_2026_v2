@@ -8,10 +8,6 @@ import cv2
 from ultralytics import YOLO
 
 
-
-
-
-
 def extract_traffic_lights(results, output_folder="extracted_lights"):
     """
     Extracts detected traffic lights from YOLO results and saves them as individual images.
@@ -60,7 +56,7 @@ def filter_motor_vehicle_lights_to_txt(json_path, output_path):
             # Check if there is actual light information in the 'inbox'
             if len(ann.get("inbox", [])) > 0:
                 for item in ann["inbox"]:
-                    # Ensure it has a recognized color 
+                    # Ensure it has a recognized color
                     if item.get("color") in ["red", "green", "yellow"]:
                         selected_images.add(ann.get("filename"))
                         break  # move to next annotation
@@ -95,42 +91,37 @@ def fusionne_txt_et_ajoute_label(fichiers, fichier_final_name):
     }
     fichier_final = fichier_final_name
     with open(fichier_final, 'w', encoding='utf-8') as f_out:
-        # On boucle sur le dictionnaire (nom du fichier et son label associé)
         for nom_fich, label in fichiers_et_labels.items():
             try:
                 with open(nom_fich, 'r', encoding='utf-8') as f_in:
                     for ligne in f_in:
-                        # On nettoie la ligne (enlève les espaces/sauts de ligne invisibles)
                         nom_image = ligne.strip()
-
-                        # On n'écrit la ligne que si elle n'est pas vide
                         if nom_image:
-                            # On écrit : nom_image, label
                             f_out.write(f"{nom_image}, {label}\n")
             except FileNotFoundError:
-                print(f"Attention : Le fichier {nom_fich} est introuvable.")
+                print(f" : no {nom_fich} found.")
 
-    print(f"Fusion terminée avec labels dans : {fichier_final}")
+    print(f"finished : {fichier_final}")
 
 
 def resize_with_padding(image, target_size=(640, 640)):
     """
-    Redimensionne une image en gardant le ratio et ajoute du padding noir.
+    resize and do padding to ensure all images have the same shape
     """
-    old_size = image.shape[:2]  # (hauteur, largeur)
+    old_size = image.shape[:2]
     ratio = min(float(target_size[i]) / old_size[i] for i in range(len(target_size)))
     new_size = tuple([int(x * ratio) for x in old_size])
 
-    # Redimensionnement de l'image d'origine
+    # resize
     image = cv2.resize(image, (new_size[1], new_size[0]))
 
-    # Création d'une nouvelle image noire à la taille cible
+    # padding
     delta_w = target_size[1] - new_size[1]
     delta_h = target_size[0] - new_size[0]
     top, bottom = delta_h // 2, delta_h - (delta_h // 2)
     left, right = delta_w // 2, delta_w - (delta_w // 2)
 
-    color = [0, 0, 0]  # Noir
+    color = [0, 0, 0]  # black
     new_img = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
 
     return new_img
@@ -192,28 +183,24 @@ if __name__ == "__main__":
     filter_motor_vehicle_lights_to_txt(input_json_motor_traffic_light, output_file_motor_traffic_light)
     import random
 
-    # Paramètres
     nom_fichier = output_file_motor_traffic_light
-    nom_fichier_sortie = 'data_set_for_1st_CNN/motor_vehicle_images_subset.txt'  # Le nom du nouveau fichier
+    nom_fichier_sortie = 'data_set_for_1st_CNN/motor_vehicle_images_subset.txt'
     nombre_lignes_a_extraire = 833
 
-    # 1. Lecture du fichier source
     with open(nom_fichier, 'r', encoding='utf-8') as f:
         lignes = f.readlines()
 
-    # 2. Sélection aléatoire
     if len(lignes) >= nombre_lignes_a_extraire:
         lignes_choisies = random.sample(lignes, nombre_lignes_a_extraire)
     else:
         print(f"Attention : Le fichier ne contient que {len(lignes)} lignes.")
         lignes_choisies = lignes
 
-    # 3. Sauvegarde dans le nouveau fichier
     with open(nom_fichier_sortie, 'w', encoding='utf-8') as f_out:
         for ligne in lignes_choisies:
             f_out.write(ligne.strip() + '\n')
 
-    fusionne_txt_et_ajoute_label(fichiers,"data_set_for_1st_CNN/fusion_avec_labels.txt")
+    fusionne_txt_et_ajoute_label(fichiers, "data_set_for_1st_CNN/fusion_avec_labels.txt")
 
     df = pd.read_csv('data_set_for_1st_CNN/fusion_avec_labels.txt', names=['filename', 'label'], skipinitialspace=True)
     X, X_test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["label"])  # stratify is a argument to unsure a good proportion of each label in the train and test set

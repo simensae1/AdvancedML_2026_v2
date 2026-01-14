@@ -14,7 +14,6 @@ model.train(
 )
 
 
-# 3. Use your custom model!
 my_custom_pedestrian_model = YOLO("runs/detect/train2/weights/best.pt")
 results = my_custom_pedestrian_model("PTL_Dataset_768x576/heon_IMG_0626.JPG")
 results[0].save(filename="prediction_result.jpg")

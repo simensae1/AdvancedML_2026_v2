@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import math
 
+
 def extract_traffic_lights(results, output_folder="extracted_lights"):
     """
     Extracts detected traffic lights from YOLO results and saves them as individual images.
@@ -26,7 +27,6 @@ def extract_traffic_lights(results, output_folder="extracted_lights"):
         # Iterate through detected boxes
         for box in result.boxes:
             # Check if the detected class is 'traffic light'
-            # In COCO dataset, 'traffic light' is class index 9
             class_id = int(box.cls[0])
             label = result.names[class_id]
 
@@ -62,7 +62,7 @@ def compare_red_and_green(list_image_path):
         upper_red1 = np.array([10, 255, 255])
         lower_red2 = np.array([160, 100, 100])
         upper_red2 = np.array([180, 255, 255])
-        
+
         mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
         mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
         mask_red = cv2.add(mask_red1, mask_red2)
@@ -87,37 +87,37 @@ def compare_red_and_green(list_image_path):
             result.append("CONFUSE")
     return result
 
+
 def display_image_grid(image_list, value_list, cols=3):
     """
     Displays a grid of images with their associated values as titles.
-    
     image_list: List of image paths or numpy arrays
     value_list: List of values (labels, scores, etc.)
     cols: Number of columns in the grid
     """
     num_images = len(image_list)
     rows = math.ceil(num_images / cols)
-    
+
     # Create the figure
     fig, axes = plt.subplots(rows, cols, figsize=(cols * 4, rows * 4))
-    axes = axes.flatten() # Flatten in case of multiple rows
-    
+    axes = axes.flatten()  # Flatten in case of multiple rows
+
     for i in range(num_images):
         img = image_list[i]
         val = value_list[i]
-        
+
         # Load image if it's a path string
         if isinstance(img, str):
             img = mpimg.imread(img)
-            
+
         axes[i].imshow(img)
         axes[i].set_title(f"Value: {val}", fontsize=12, pad=10)
-        axes[i].axis('off') # Hide the x/y axis pixels
-        
+        axes[i].axis('off')  # Hide the x/y axis pixels
+
     # Hide any unused subplots
     for j in range(i + 1, len(axes)):
         axes[j].axis('off')
-        
+
     plt.tight_layout()
     plt.savefig("result_full_model", bbox_inches='tight', dpi=300)
     plt.show()
@@ -126,7 +126,7 @@ def display_image_grid(image_list, value_list, cols=3):
 def classify_traffic_light(path_image):
     model_yolo = YOLO("yolo11x.pt")
     model_first_cnn = first_CNN.create_model()
-    model_first_cnn.load_weights('first_CNN_weights.weights.h5')
+    model_first_cnn.load_weights('models/first_CNN_weights.weights.h5')
     model_first_cnn.summary()
 
     results = model_yolo(path_image)

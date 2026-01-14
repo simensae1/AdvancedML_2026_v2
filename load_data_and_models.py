@@ -3,7 +3,6 @@ import os
 import zipfile
 
 # 1. Setup Environment Variables (Fill these in for your PC)
-# You can find these in SSP Cloud -> Mon Compte -> Service Credentials
 os.environ.setdefault('AWS_S3_ENDPOINT', 'minio.lab.sspcloud.fr')
 os.environ.setdefault('AWS_ACCESS_KEY_ID', '8F2BK7HWJ9O5R78N29DN')
 os.environ.setdefault('AWS_SECRET_ACCESS_KEY', 'xJ0PQREn0kGIo9vNpQ3f4VCTZaCbPg8e2t9Y2eM5')
@@ -27,22 +26,23 @@ fs = s3fs.S3FileSystem(
 
 my_bucket = "sim2023"
 
+
 def safe_download_and_extract(s3_path, extraction_dir):
     # REMOVE 's3://' prefix if it exists for s3fs methods
     clean_path = s3_path.replace("s3://", "")
     local_zip = "temp_data.zip"
-    
+
     print(f"Downloading {clean_path}...")
     try:
         fs.get(clean_path, local_zip)
-        
+
         if not os.path.exists(extraction_dir):
             os.makedirs(extraction_dir)
 
         print(f"Extracting to '{extraction_dir}'...")
         with zipfile.ZipFile(local_zip, 'r') as zip_ref:
             zip_ref.extractall(extraction_dir)
-        
+
         os.remove(local_zip)
         print("Success.")
     except Exception as e:
@@ -61,6 +61,14 @@ for ds in datasets:
 # Download Model
 s3_model = f"{my_bucket}/advancedmlmodels/best.pt"
 local_model = "models/best.pt"
+
+if not os.path.exists(local_model):
+    os.makedirs("models", exist_ok=True)
+    print(f"Downloading model: {s3_model}")
+    fs.get(s3_model, local_model)
+
+s3_model = f"{my_bucket}/advancedmlmodels/first_CNN_weights.weights.h5"
+local_model = "models/first_CNN_weights.weights.h5"
 
 if not os.path.exists(local_model):
     os.makedirs("models", exist_ok=True)
