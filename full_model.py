@@ -180,7 +180,6 @@ def classify_traffic_light(path_image):
 
 # 1 = pedestrian traffic light
 # 0 = vehiculte traffic light
-classify_traffic_light("heon_IMG_0766.JPG")
 
-# heon_IMG_0602 one pedestrian traffic light no vehicule traffic light
-# heon_IMG_0552 no pedestrian traffic light two vehicule traffic light
+# example:
+classify_traffic_light("data/heon_IMG_0766.JPG")

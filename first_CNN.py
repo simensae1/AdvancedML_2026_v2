@@ -78,7 +78,7 @@ if __name__ == "__main__":
     history = model.fit(
         X_train, y_train,
         epochs=15,             # Number of complete passes over the dataset
-        batch_size=16,         # Number of images processed before updating the model
+        batch_size=32,         # Number of images processed before updating the model
         validation_split=0.2   # Uses 20% of data for validation during training
     )
 
