@@ -46,7 +46,7 @@ print(X_test)
 
 
 model = first_CNN.create_model() 
-model.load_weights('first_CNN_weights.weights.h5')
+model.load_weights('models/first_CNN_weights.weights.h5')
 model.summary()
 classes = [str(i) for i in range(2)]
 
