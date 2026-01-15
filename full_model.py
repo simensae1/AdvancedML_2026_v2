@@ -182,4 +182,4 @@ def classify_traffic_light(path_image):
 # 0 = vehiculte traffic light
 
 # example:
-classify_traffic_light("data/heon_IMG_0766.JPG")
+classify_traffic_light("AdvancedML_2026_v2/heon_IMG_0766.JPG")
