@@ -170,7 +170,7 @@ def classify_traffic_light(path_image):
         print(prediction)
         binary_prediction = (prediction > 0.5).astype("int32")
         print(binary_prediction)
-        labels_list = ["vehiculte traffic light" if x == 0 else "pedestrian traffic light" for x in binary_prediction]
+        labels_list = ["vehicule traffic light" if x == 0 else "pedestrian traffic light" for x in binary_prediction]
         print(labels_list)
         liste_couleur = compare_red_and_green(liste_image_path)
         for i in range(len(liste_image_path)):
